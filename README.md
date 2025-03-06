@@ -2,7 +2,7 @@
 
 <img src="images/logo.png" alt="Logo" width="30%" />
 
-Relay: https://github.com/RadiantByte/MuCuteRelay
+Relay: https://github.com/RadiantByte/MuCuteRelay/tree/reforge-1.21.4X
 
 ## License
 
