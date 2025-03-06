@@ -88,7 +88,7 @@ fun AboutPageContent() {
                         onClick = {
                             val intent = Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://github.com/RadiantByte/MuCuteClient")
+                                Uri.parse("https://github.com/RadiantByte/MuCuteClient/tree/heritage-1.21.4X")
                             )
                             context.startActivity(intent)
                         },
