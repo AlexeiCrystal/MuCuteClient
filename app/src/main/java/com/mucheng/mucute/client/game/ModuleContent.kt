@@ -1,5 +1,6 @@
 package com.mucheng.mucute.client.game
 
+import android.content.Context
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -21,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Card
@@ -47,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -72,36 +76,47 @@ private fun fetchCachedModules(moduleCategory: ModuleCategory): List<Module> {
 
 @Composable
 fun ModuleContent(moduleCategory: ModuleCategory) {
-    var modules: List<Module>? by remember(moduleCategory) { mutableStateOf(moduleCache[moduleCategory]) }
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    val columnCount = sharedPreferences.getInt("module_columns", 3)
 
-    LaunchedEffect(modules) {
-        if (modules == null) {
-            withContext(Dispatchers.IO) {
-                modules = fetchCachedModules(moduleCategory)
-            }
+    var modules by remember { mutableStateOf<List<Module>?>(null) }
+
+    LaunchedEffect(moduleCategory) {
+        withContext(Dispatchers.IO) {
+            modules = fetchCachedModules(moduleCategory)
         }
     }
 
-    Crossfade(
-        targetState = modules
-    ) {
+    Crossfade(targetState = modules) {
         if (it != null) {
-            LazyColumn(
-                Modifier
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(it.size) { index ->
-                    val module = it[index]
-                    ModuleCard(module)
+            Box(Modifier.fillMaxSize()) {
+                Row(
+                    Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Use configured column count
+                    for (columnIndex in 0 until columnCount) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            val columnModules = it.filterIndexed { index, _ ->
+                                index % columnCount == columnIndex
+                            }
+
+                            items(columnModules.size) { index ->
+                                ModuleCard(columnModules[index])
+                            }
+                        }
+                    }
                 }
             }
         } else {
             Box(Modifier.fillMaxSize()) {
                 CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         }
@@ -173,6 +188,7 @@ private fun ModuleCard(module: Module) {
                         is FloatValue -> FloatValueContent(it)
                         is IntValue -> IntValueContent(it)
                         is ListValue -> ChoiceValueContent(it)
+                        is EnumValue<*> -> EnumValueContent(it)
                     }
                 }
                 ShortcutContent(module)
@@ -419,6 +435,44 @@ private fun ShortcutContent(module: Module) {
                 checkmarkColor = MaterialTheme.colorScheme.primary
             )
         )
+    }
+}
+
+@Composable
+private fun <T : Enum<T>> EnumValueContent(value: EnumValue<T>) {
+    Column(
+        Modifier
+            .padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
+    ) {
+        Text(
+            value.name.translatedSelf,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.surface
+        )
+        Row(
+            Modifier
+                .horizontalScroll(rememberScrollState())
+        ) {
+            value.enumClass.enumConstants?.forEach { enumValue ->
+                ElevatedFilterChip(
+                    selected = value.value == enumValue,
+                    onClick = {
+                        if (value.value != enumValue) {
+                            value.value = enumValue
+                        }
+                    },
+                    label = {
+                        Text(enumValue.name.translatedSelf)
+                    },
+                    modifier = Modifier.height(30.dp),
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.outlineVariant,
+                        selectedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedLabelColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+        }
     }
 }
 

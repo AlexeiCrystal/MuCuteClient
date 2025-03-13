@@ -4,8 +4,11 @@ package com.mucheng.mucute.client.game
 import com.mucheng.mucute.client.application.AppContext
 import com.mucheng.mucute.client.game.module.combat.AntiCrystalModule
 import com.mucheng.mucute.client.game.module.combat.AntiKnockbackModule
+import com.mucheng.mucute.client.game.module.combat.CrystalSmashModule
 import com.mucheng.mucute.client.game.module.combat.HitAndRunModule
+import com.mucheng.mucute.client.game.module.combat.HitboxModule
 import com.mucheng.mucute.client.game.module.combat.KillauraModule
+import com.mucheng.mucute.client.game.module.combat.TriggerBotModule
 import com.mucheng.mucute.client.game.module.effect.AbsorptionModule
 import com.mucheng.mucute.client.game.module.effect.BadOmenModule
 import com.mucheng.mucute.client.game.module.effect.BlindnessModule
@@ -37,6 +40,7 @@ import com.mucheng.mucute.client.game.module.effect.WitherModule
 import com.mucheng.mucute.client.game.module.misc.DesyncModule
 import com.mucheng.mucute.client.game.module.misc.FakeDeathModule
 import com.mucheng.mucute.client.game.module.misc.FakeXPModule
+import com.mucheng.mucute.client.game.module.misc.NoChatModule
 import com.mucheng.mucute.client.game.module.misc.NoClipModule
 import com.mucheng.mucute.client.game.module.misc.PositionLoggerModule
 import com.mucheng.mucute.client.game.module.visual.TimeShiftModule
@@ -60,6 +64,7 @@ import com.mucheng.mucute.client.game.module.particle.FizzParticleModule
 import com.mucheng.mucute.client.game.module.particle.HeartParticleModule
 import com.mucheng.mucute.client.game.module.visual.FreeCameraModule
 import com.mucheng.mucute.client.game.module.visual.NoHurtCameraModule
+import com.mucheng.mucute.client.game.module.visual.SpeedDisplayModule
 import com.mucheng.mucute.client.game.module.visual.ZoomModule
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -138,6 +143,11 @@ object ModuleManager {
             add(FizzParticleModule())
             add(BreezeWindExplosionParticleModule())
             add(HitAndRunModule())
+            add(HitboxModule())
+            add(CrystalSmashModule())
+            add(TriggerBotModule())
+            add(NoChatModule())
+            add(SpeedDisplayModule())
         }
     }
 
